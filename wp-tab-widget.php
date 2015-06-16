@@ -1,10 +1,10 @@
 <?php
 /*
-Plugin Name: WP Tab Widget
-Plugin URI: http://mythemeshop.com/
+Plugin Name: MSDLab Tab Widget
+Plugin URI: http://msdlab.com/
 Description: WP Tab Widget is the AJAXified plugin which loads content by demand, and thus it makes the plugin incredibly lightweight.
-Author: MyThemeShop
-Version: 1.0
+Author: MSDLab/MyThemeShop
+Version: 1.2.1
 Author URI: http://mythemeshop.com/
 */
 
@@ -24,7 +24,7 @@ class wpt_widget extends WP_Widget {
 		
 		$widget_ops = array('classname' => 'widget_wpt', 'description' => __('Display popular posts, recent posts, comments, and tags in tabbed format.', 'mts_wpt'));
 		$control_ops = array('width' => 300, 'height' => 350);
-		$this->WP_Widget('wpt_widget', __('WP Tab Widget by MyThemeShop', 'mts_wpt'), $widget_ops, $control_ops);
+		$this->WP_Widget('wpt_widget', __('MSDLab Tab Widget forked from WP Tab Widget by MyThemeShop', 'mts_wpt'), $widget_ops, $control_ops);
     }	
     
     function wpt_init() {
@@ -50,11 +50,15 @@ class wpt_widget extends WP_Widget {
     }  
     	
 	function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array( 'tabs' => array('recent' => 1, 'popular' => 1, 'comments' => 0, 'tags' => 0), 'tab_order' => array('popular' => 1, 'recent' => 2, 'comments' => 3, 'tags' => 4), 'allow_pagination' => 1, 'post_num' => '5', 'comment_num' => '5', 'show_thumb' => 1, 'thumb_size' => 'small', 'show_date' => 1, 'show_excerpt' => 0, 'excerpt_length' => 10, 'show_comment_num' => 0, 'show_avatar' => 1) );
+		$instance = wp_parse_args( (array) $instance, array( 'title' => '','tabs' => array('recent' => 1, 'popular' => 1, 'comments' => 0, 'tags' => 0), 'tab_order' => array('popular' => 1, 'recent' => 2, 'comments' => 3, 'tags' => 4), 'allow_pagination' => 1, 'post_num' => '5', 'comment_num' => '5', 'show_thumb' => 1, 'thumb_size' => 'small', 'show_date' => 1, 'show_excerpt' => 0, 'excerpt_length' => 10, 'show_comment_num' => 0, 'show_avatar' => 1) );
 		extract($instance);
+        
+        $title = strip_tags($title);
 		?>
         <div class="wpt_options_form">
-        
+        <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:'); ?></label>
+        <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" /></p>
+
         <h4><?php _e('Select Tabs', 'mts_wpt'); ?></h4>
         
 		<div class="wpt_select_tabs">
@@ -190,7 +194,8 @@ class wpt_widget extends WP_Widget {
 	
 	function update( $new_instance, $old_instance ) {	
 		$instance = $old_instance;    
-		$instance['tabs'] = $new_instance['tabs'];  
+        $instance['title'] = $new_instance['title'];  
+        $instance['tabs'] = $new_instance['tabs'];  
         $instance['tab_order'] = $new_instance['tab_order'];  
 		$instance['allow_pagination'] = $new_instance['allow_pagination'];	
 		$instance['post_num'] = $new_instance['post_num'];	
@@ -209,6 +214,7 @@ class wpt_widget extends WP_Widget {
 		extract($instance);    
 		wp_enqueue_script('wpt_widget'); 
 		wp_enqueue_style('wpt_widget');  
+        $title = apply_filters( 'widget_title', empty($instance['title']) ? '' : $instance['title'], $instance, $this->id_base);
 		if (empty($tabs)) $tabs = array('recent' => 1, 'popular' => 1);    
 		$tabs_count = count($tabs);     
 		if ($tabs_count <= 1) {       
@@ -226,6 +232,7 @@ class wpt_widget extends WP_Widget {
         
 		?>	
 		<?php echo $before_widget; ?>	
+            <?php if ( !empty( $title ) ) { echo $before_title . $title . $after_title; } ?>
 		<div class="wpt_widget_content" id="<?php echo $widget_id; ?>_content">		
 			<ul class="wpt-tabs <?php echo "has-$tabs_count-"; ?>tabs">
                 <?php foreach ($available_tabs as $tab => $label) { ?>

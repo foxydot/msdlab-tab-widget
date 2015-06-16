@@ -75,6 +75,10 @@ Please disable all plugins and check if shortcode plugin is working properly. Th
 
 == Changelog ==
 
+
+= 1.2.1 =
+* Added Widget Title Input and display
+
 = 1.2 =
 * Added Title Length option
 * Fixed post view count compatibility with themes
